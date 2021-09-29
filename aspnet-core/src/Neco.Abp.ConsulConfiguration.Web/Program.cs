@@ -4,6 +4,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Serilog;
 using Serilog.Events;
+using Winton.Extensions.Configuration.Consul;
 
 namespace Neco.Abp.ConsulConfiguration.Web
 {
@@ -48,6 +49,9 @@ namespace Neco.Abp.ConsulConfiguration.Web
                 .ConfigureAppConfiguration(build =>
                 {
                     build.AddJsonFile("appsettings.secrets.json", optional: true);
+
+                    var configuration = build.Build();
+                    build.AddConsul("MyKey", options => ConfigureConsulConfiguration(configuration, options));
                 })
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
@@ -55,5 +59,33 @@ namespace Neco.Abp.ConsulConfiguration.Web
                 })
                 .UseAutofac()
                 .UseSerilog();
+
+        private static void ConfigureConsulConfiguration(IConfigurationRoot configuration, IConsulConfigurationSource options)
+        {
+            options.Optional = true;
+            options.PollWaitTime = TimeSpan.FromSeconds(5);
+            options.ReloadOnChange = true;
+
+            options.ConsulHttpClientOptions = clientOptions =>
+            {
+                var consulConfigurationAddress = configuration["RemoteConfiguration:Consul:Endpoint"];
+                if (consulConfigurationAddress != null)
+                {
+                    clientOptions.BaseAddress = new Uri(consulConfigurationAddress);
+                }
+            };
+
+            options.OnLoadException = (onLoadExceptionContext) =>
+            {
+                Console.WriteLine(onLoadExceptionContext.Exception);
+            };
+
+            options.OnWatchException = (onWatchExceptionContext) =>
+            {
+                Console.WriteLine(onWatchExceptionContext.Exception);
+
+                return TimeSpan.FromSeconds(5);
+            };
+        }
     }
 }
