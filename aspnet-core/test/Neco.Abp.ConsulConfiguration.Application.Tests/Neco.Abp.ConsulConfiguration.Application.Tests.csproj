@@ -1,0 +1,19 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <Import Project="..\..\common.props" />
+
+  <PropertyGroup>
+    <TargetFramework>net5.0</TargetFramework>
+    <RootNamespace>Neco.Abp.ConsulConfiguration</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\Neco.Abp.ConsulConfiguration.Application\Neco.Abp.ConsulConfiguration.Application.csproj" />
+    <ProjectReference Include="..\Neco.Abp.ConsulConfiguration.Domain.Tests\Neco.Abp.ConsulConfiguration.Domain.Tests.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.9.1" />
+  </ItemGroup>
+
+</Project>
